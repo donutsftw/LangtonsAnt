@@ -7,6 +7,7 @@ http://en.wikipedia.org/wiki/Langton%27s_ant
 Author: Duncan Lindbo
 History:
   -9/21/2013: Initial version.
+  -10/20/2013: Updated to better support multiple ants.
 
 Writen for the LoL Shield, designed by Jimmie Rodgers: 
 http://jimmieprodgers.com/kits/lolshield/
@@ -21,11 +22,9 @@ LoL Shield project page: http://code.google.com/p/lolshield/
 #define DELAY 150
 #define SIZEX DISPLAY_COLS    //Sets the X axis size
 #define SIZEY DISPLAY_ROWS    //Sets the Y axis size
-//how many ants- you can have more than one, but since i'm setting the LEDs on/off 
-//immediately when an ant gets to that square, the display may not match up 100% to
-//the correct pattern (need to test this further)
-const byte numberOfAnts=1;
-byte world[SIZEX][SIZEY];
+//how many ants: more is more interseting visually, and makes it harder to see the pattern
+const byte numberOfAnts=4;
+byte world[SIZEX][SIZEY][2];
 //array of ants: each ant has an x-position, y-position, and current direction
 //ants[ANT][0]: x-position
 //ants[ANT][1]: y-position 
@@ -41,10 +40,9 @@ void setup(){
 
 void loop(){
   for(byte i=0; i < numberOfAnts; i++){
-    boolean on = world[ants[i][0]][ants[i][1]];
+    boolean on = world[ants[i][0]][ants[i][1]][0];
     //flip the state of the led (on/off)
-    world[ants[i][0]][ants[i][1]] = !on;
-    LedSign::Set(ants[i][0], ants[i][1], world[ants[i][0]][ants[i][1]]);
+    world[ants[i][0]][ants[i][1]][1] = !on;
     //if the LED was on, turn the ant 90 degrees right
     if(on){
       ants[i][2] = (ants[i][2]%4) + 1;
@@ -72,6 +70,12 @@ void loop(){
           ants[i][1]=(ants[i][1]+1)%SIZEY;
           break;
       }
+  }
+  for (byte x = 0; x < SIZEX; x++) { 
+    for (byte y = 0; y < SIZEY; y++) {
+      world[x][y][0] = world[x][y][1];
+      LedSign::Set(x, y, world[x][y][1]);
+    }
   }
   delay(DELAY);
 }
